@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ips.local/schemas/soft_ref_schema.json",
+  "title": "IPS Soft Reference Specification",
+  "description": "Defines the cross-module soft reference pattern for IPS ER layer decoupling ({应用层} layer isolation). Replaces physical FK with dual-field soft ref (_key + _id) for cross-layer/cross-module entity references.",
+  "version": "1.0.0",
+  "pattern": {
+    "field_pair": {
+      "{target}_key": {
+        "type": "VARCHAR(50)",
+        "nullable": true,
+        "description": "Soft ref business key pointing to {target_table}.code. Used as primary lookup key at runtime."
+      },
+      "{target}_id": {
+        "type": "UUID",
+        "nullable": true,
+        "description": "Soft ref UUID pointing to {target_table}.id. Cached for JOIN performance, validated asynchronously."
+      }
+    },
+    "naming_convention": {
+      "field_naming": "{target_table_singular}_key / {target_table_singular}_id (e.g. order_key / order_id for sales_order)",
+      "index_naming": "idx_{source_table}_{target}_id"
+    }
+  },
+  "rules": {
+    "no_fk_constraint": true,
+    "no_fk_ref_in_er": true,
+    "no_fk_array_entry": true,
+    "description": "Cross-layer FK constraints are forbidden. Replace fk_ref field property and fk[] array entries with soft ref field pair."
+  },
+  "validation": {
+    "write_time": "GORM BeforeCreate/BeforeUpdate callback validates {target}_key exists in target table via API call",
+    "read_time": "JOIN on {target}_id for performance; fallback to {target}_key lookup if _id is NULL",
+    "reconciliation": "Scheduled job verifies _key↔_id consistency and orphans"
+  },
+  "index": {
+    "type": "btree",
+    "columns": ["{target}_id"],
+    "description": "btree index on {target}_id for JOIN performance. No index needed on {target}_key (rarely used for JOIN)."
+  },
+  "applicable_scenarios": {
+    "{应用层}_to_DATA": "Mandatory. All {应用层}→DATA cross-module references must use soft ref.",
+    "{应用层}_to_{应用层}_cross_module": "Mandatory. All cross-module {应用层}→{应用层} references must use soft ref.",
+    "DATA_to_{平台层}": "Forbidden. DATA layer must not reference {平台层} layer at all (use flow_template_key VARCHAR pattern).",
+    "same_module_internal": "Keep physical FK. Within same ER JSON file, normal FK is preferred.",
+    "same_domain_cross_submodule": "Optional. {交易模块1}↔{交易模块2} same domain may keep FK (design decision per case)."
+  },
+  "exceptions": [
+    {
+      "field": "sub_order.filing_id",
+      "reason": "DATA→{应用层} backfill, E06 event only, single-direction write",
+      "treatment": "Soft ref (filing_key + filing_id), no FK constraint"
+    },
+    {
+      "field": "sub_order.case_id",
+      "reason": "{数据模块M}→{数据模块I} backfill, E07 event only",
+      "treatment": "Soft ref (case_key + case_id), no FK constraint"
+    }
+  ]
+}

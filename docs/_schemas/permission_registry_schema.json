@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "permission_registry_schema.json",
+  "title": "IPS Permission Registry Schema",
+  "description": "Global registry of all permission_codes across all modules. SSOT for permission model.",
+  "type": "object",
+  "required": ["$schema", "permissions"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../_schemas/permission_registry_schema.json"
+    },
+    "permissions": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["code", "module", "name_zh", "api_endpoints"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z0-9_:]+$",
+            "description": "permission_code, e.g. 'trx:contract:create'"
+          },
+          "module": {
+            "type": "string",
+            "description": "Owning module ID, e.g. '{交易模块X}'"
+          },
+          "name_zh": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": ["standard", "sensitive", "critical"],
+            "description": "standard=normal ops, sensitive=financial/data export, critical=admin/irreversible"
+          },
+          "rate_limit_level": {
+            "type": "string",
+            "enum": ["strict", "normal", "relaxed"],
+            "description": "strict=10/min, normal=60/min, relaxed=120/min (values from NFR Registry)"
+          },
+          "api_endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "API endpoints bound to this permission, e.g. ['POST /contracts', 'POST /contracts/:id/supplement']"
+          },
+          "roles_allowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Default roles with this permission (tenant-configurable)"
+          },
+          "prd_reference": {
+            "type": "string",
+            "description": "Sub PRD section defining this permission's scope"
+          }
+        }
+      }
+    }
+  }
+}

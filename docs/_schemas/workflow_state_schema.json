@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "workflow_state_schema.json",
+  "title": "Workflow State",
+  "description": "IPS 项目流程状态追踪，由 {coordinator} 维护",
+  "type": "object",
+  "required": [
+    "$schema",
+    "current_phase",
+    "current_gate",
+    "gate_status",
+    "next_gate",
+    "active_agents",
+    "phase_progress",
+    "flow_history",
+    "mermaid_text"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema 引用路径"
+    },
+    "current_phase": {
+      "type": "string",
+      "description": "当前阶段，如 Phase 3"
+    },
+    "current_gate": {
+      "type": "string",
+      "description": "当前 Gate 编号"
+    },
+    "gate_status": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "passed", "blocked"],
+      "description": "当前 Gate 状态"
+    },
+    "next_gate": {
+      "type": "string",
+      "description": "下一个 Gate 编号"
+    },
+    "active_agents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["agent", "role", "status", "current_task"],
+        "additionalProperties": false,
+        "properties": {
+          "agent": {
+            "type": "string",
+            "description": "Agent 编号，如 {pm}"
+          },
+          "role": {
+            "type": "string",
+            "description": "Agent 角色名称"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["idle", "active", "blocked"],
+            "description": "Agent 当前状态"
+          },
+          "current_task": {
+            "type": "string",
+            "description": "Agent 当前任务描述"
+          }
+        }
+      }
+    },
+    "phase_progress": {
+      "type": "object",
+      "required": ["phase", "gates"],
+      "additionalProperties": false,
+      "properties": {
+        "phase": {
+          "type": "string",
+          "description": "阶段名称"
+        },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["gate", "deliverables", "status"],
+            "additionalProperties": false,
+            "properties": {
+              "gate": {
+                "type": "string",
+                "description": "Gate 编号"
+              },
+              "deliverables": {
+                "type": "string",
+                "description": "该 Gate 的交付物描述"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["pending", "in_progress", "passed"],
+                "description": "Gate 状态"
+              }
+            }
+          }
+        }
+      }
+    },
+    "flow_history": {
+      "type": "array",
+      "description": "流程历史记录",
+      "items": {
+        "type": "object",
+        "required": ["date", "phase", "action", "agent"],
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "事件日期"
+          },
+          "phase": {
+            "type": "string",
+            "description": "所属阶段"
+          },
+          "action": {
+            "type": "string",
+            "description": "动作描述"
+          },
+          "agent": {
+            "type": "string",
+            "description": "执行 Agent"
+          },
+          "note": {
+            "type": "string",
+            "description": "备注"
+          }
+        }
+      }
+    },
+    "mermaid_text": {
+      "type": "string",
+      "description": "Mermaid 流程图文本，用于可视化进度"
+    }
+  }
+}

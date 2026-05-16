@@ -1,0 +1,241 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ips.local/schemas/er_schema.json",
+  "title": "IPS ER Table Definition",
+  "description": "Validates ER table definition files for the IPS project.",
+  "type": "object",
+  "required": ["module", "module_id", "layer", "source", "tables"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema URI reference."
+    },
+    "module": {
+      "type": "string",
+      "description": "Module name, e.g. {数据模块A}, {模块B}."
+    },
+    "module_id": {
+      "type": "string",
+      "pattern": "^([A-Z]{2,4}-[0-9]{2}|Global)$",
+      "description": "Module ID such as {数据模块2}, {平台模块2}, {集成模块1}, {营销模块1}, Global."
+    },
+    "layer": {
+      "type": "string",
+      "enum": ["DATA", "COL", "INT", "{应用层}", "Global"],
+      "description": "Architecture layer the module belongs to."
+    },
+    "source": {
+      "type": "string",
+      "description": "Source document reference, e.g. 01b_Arch-Platform.md §{数据模块2}."
+    },
+    "tables": {
+      "type": "array",
+            "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["name", "comment", "fields"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Table name in snake_case."
+          },
+          "comment": {
+            "type": "string",
+            "description": "Human-readable table description."
+          },
+          "fields": {
+            "type": "array",
+      "minItems": 0,
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "description"],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Column name in snake_case."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "PostgreSQL data type, e.g. VARCHAR(30), BIGINT, JSONB."
+                },
+                "constraints": {
+                  "type": "string",
+                  "description": "Arbitrary column-level constraint expression."
+                },
+                "nullable": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Whether the column allows NULL."
+                },
+                "default_value": {
+                  "type": "string",
+                  "description": "SQL default value expression."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Human-readable column description."
+                },
+                "is_pii": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether the column contains personally identifiable information."
+                },
+                "is_encrypted": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether the column value is stored encrypted."
+                },
+                "fk_ref": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+                  "description": "Inline foreign-key reference in table.field format."
+                }
+              }
+            }
+          },
+          "indexes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "columns"],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^(idx|uk)_[a-z][a-z0-9_]*$",
+                  "description": "Index name, prefixed with idx_ or uk_."
+                },
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "minItems": 1
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["btree", "gin", "gist", "hash"],
+                  "default": "btree",
+                  "description": "PostgreSQL index access method."
+                },
+                "condition": {
+                  "type": "string",
+                  "description": "Partial-index WHERE condition."
+                },
+                "opclass": {
+                  "type": "string",
+                  "description": "PostgreSQL operator class, e.g. gin_trgm_ops."
+                },
+                "comment": {
+                  "type": "string",
+                  "description": "Index documentation comment."
+                }
+              }
+            }
+          },
+          "fk": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["field", "ref_table"],
+              "additionalProperties": false,
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Local column that holds the foreign key."
+                },
+                "ref_table": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Referenced table name."
+                },
+                "ref_field": {
+                  "type": "string",
+                  "default": "id",
+                  "description": "Referenced column in the parent table."
+                },
+                "ref_module": {
+                  "type": "string",
+                  "description": "Source module ID for cross-module FK traceability, e.g. {数据模块4}."
+                }
+              }
+            }
+          },
+          "unique_constraints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "columns"],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^uk_[a-z][a-z0-9_]*$",
+                  "description": "Unique constraint name, prefixed with uk_."
+                },
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "minItems": 1
+                },
+                "condition": {
+                  "type": "string",
+                  "description": "Partial unique constraint WHERE condition."
+                }
+              }
+            }
+          },
+          "pi_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of field names that participate in the primary index."
+          },
+          "audit_fields": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the table includes standard audit columns (created_at, updated_at, etc.)."
+          },
+          "rls_policies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "RLS policy name."
+                },
+                "using": {
+                  "type": "string",
+                  "description": "USING expression for the policy."
+                },
+                "with_check": {
+                  "type": "string",
+                  "description": "WITH CHECK expression for the policy."
+                }
+              }
+            },
+            "description": "Row-Level Security policies for this table."
+          }
+        }
+      }
+    },
+    "mermaid_text": {
+      "type": "string",
+      "description": "Mermaid ER diagram source text."
+    }
+  }
+}

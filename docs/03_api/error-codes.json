@@ -1,0 +1,66 @@
+{
+  "$schema": "../_schemas/api_contract_schema.json",
+  "version": "1.0.0",
+  "description": "全局错误码定义 — 所有模块共用",
+  "error_codes": [
+    {
+      "code": 0,
+      "http_status": 200,
+      "message": "成功",
+      "module": "global"
+    },
+    {
+      "code": 1001,
+      "http_status": 400,
+      "message": "参数校验失败",
+      "module": "global"
+    },
+    {
+      "code": 1002,
+      "http_status": 401,
+      "message": "未授权，请先登录",
+      "module": "global"
+    },
+    {
+      "code": 1003,
+      "http_status": 403,
+      "message": "权限不足",
+      "module": "global"
+    },
+    {
+      "code": 1004,
+      "http_status": 404,
+      "message": "资源不存在",
+      "module": "global"
+    },
+    {
+      "code": 1005,
+      "http_status": 409,
+      "message": "数据冲突（乐观锁/唯一约束）",
+      "module": "global"
+    },
+    {
+      "code": 1006,
+      "http_status": 429,
+      "message": "请求过于频繁，请稍后重试",
+      "module": "global"
+    },
+    {
+      "code": 2001,
+      "http_status": 500,
+      "message": "服务器内部错误",
+      "module": "global"
+    },
+    {
+      "code": 2002,
+      "http_status": 503,
+      "message": "服务暂时不可用",
+      "module": "global"
+    }
+  ],
+  "modules": {
+    "_comment": "各模块错误码按 3xxx~9xxx 段分配，由各模块自行定义",
+    "{MODULE_A}": "3001~3999",
+    "{MODULE_B}": "4001~4999"
+  }
+}

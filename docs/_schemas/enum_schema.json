@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "enum_schema.json",
+  "title": "IPS Enum Dictionary Schema",
+  "description": "Validates enum dictionary files for the IPS project.",
+  "type": "object",
+  "required": ["$schema", "module", "module_id", "layer", "source", "enums"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../../_schemas/enum_schema.json"
+    },
+    "module": {
+      "type": "string",
+      "minLength": 1
+    },
+    "module_id": {
+      "type": "string",
+      "pattern": "^([A-Z]{2,4}-[0-9]{2}|Global)$"
+    },
+    "layer": {
+      "type": "string",
+      "enum": ["DATA", "COL", "INT", "{应用层}", "Global"]
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enums": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "comment": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": ["system", "tenant", "module", "global"]
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["code", "name_zh"],
+              "additionalProperties": false,
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Enum value in snake_case, e.g. pending_approval."
+                },
+                "name_zh": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "is_terminal": {
+                  "type": "boolean"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "template": {
+                  "type": "string"
+                },
+                "applicable_modules": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "source": {
+                  "type": "string",
+                  "description": "Originating module ID for this enum value."
+                },
+                "priority": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Resolution priority order (lower = higher priority)."
+                },
+                "columns": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Grid column span count."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ips.local/schemas/lint_rules.json",
+  "title": "IPS ER Layer Lint Rules",
+  "description": "Cross-file semantic lint rules for ER table definitions. Enforces three-layer architecture constraints (DATA/{应用层}/{平台层} isolation).",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "id": "LINT-001",
+      "severity": "ERROR",
+      "title": "{应用层}-to-{应用层} cross-module FK forbidden",
+      "description": "No FK (fk_ref or fk[] entry) may reference a table defined in a different {应用层} module file. Must use soft reference (_key + _id) instead.",
+      "check": "For each fk_ref or fk[].ref_table, if source file layer='{应用层}' and target table is in a different module_id, report ERROR.",
+      "exceptions": [
+        "Same-domain sub-modules (e.g. {交易模块1} ↔ {交易模块2}) may keep FK if explicitly decided"
+      ]
+    },
+    {
+      "id": "LINT-002",
+      "severity": "ERROR",
+      "title": "DATA-to-{平台层} reference forbidden",
+      "description": "DATA layer tables must not have FK or soft_ref referencing {平台层}/COL layer tables. Use VARCHAR business key lookup instead.",
+      "check": "For each field with fk_ref or in fk[], if source file layer='DATA' and target table is in a COL module, report ERROR."
+    },
+    {
+      "id": "LINT-003",
+      "severity": "ERROR",
+      "title": "DATA-to-{应用层} FK forbidden",
+      "description": "DATA layer tables must not have FK referencing {应用层} layer tables. Soft reference or event-driven backfill only.",
+      "check": "For each fk_ref or fk[].ref_table, if source file layer='DATA' and target table is in a {应用层} module, report ERROR.",
+      "exceptions": [
+        "sub_order.filing_id → filing (E06 event backfill, soft ref with no FK constraint)",
+        "sub_order.case_id → case (E07 event backfill, soft ref with no FK constraint)"
+      ]
+    },
+    {
+      "id": "LINT-004",
+      "severity": "WARNING",
+      "title": "Soft ref field pair completeness",
+      "description": "Each soft reference should ideally have both {target}_key and {target}_id fields. Missing pair is a warning, not error.",
+      "check": "For each field named {target}_key or {target}_id, verify the complementary field exists in the same table."
+    }
+  ],
+  "layer_hierarchy": {
+    "DATA": {
+      "allowed_inbound_from": [
+        "{应用层}",
+        "{平台层}"
+      ],
+      "allowed_outbound_to": []
+    },
+    "{应用层}": {
+      "allowed_inbound_from": [],
+      "allowed_outbound_to": [
+        "DATA",
+        "{平台层}"
+      ]
+    },
+    "{平台层}": {
+      "allowed_inbound_from": [
+        "{应用层}",
+        "DATA"
+      ],
+      "allowed_outbound_to": [
+        "DATA"
+      ]
+    },
+    "COL": {
+      "allowed_inbound_from": [
+        "{应用层}",
+        "DATA"
+      ],
+      "allowed_outbound_to": []
+    },
+    "INT": {
+      "allowed_inbound_from": [
+        "{应用层}",
+        "DATA",
+        "{平台层}"
+      ],
+      "allowed_outbound_to": []
+    }
+  },
+  "module_file_map": {
+    "{数据模块1}": "{数据模块A}.json",
+    "{数据模块2}": "{数据模块B}.json",
+    "{数据模块3}": "{数据模块C}.json",
+    "{数据模块4}": "{数据模块D}.json",
+    "{数据模块5}": "{数据模块E}.json",
+    "{数据模块6}": "{数据模块F}.json",
+    "{数据模块7}": "{数据模块G}.json",
+    "{数据模块8}": "{数据模块H}.json",
+    "{数据模块9}": "{数据模块K}.json",
+    "{数据模块10}": "{数据模块I}.json",
+    "{数据模块11}": "{数据模块J}.json",
+    "{数据模块12}": "{数据模块L}.json",
+    "{数据模块13}": "{数据模块M}.json",
+    "{财务模块1}": "{财务模块A}.json",
+    "{财务模块2}": "{财务模块B}.json",
+    "{营销模块1}": "{营销模块A}.json",
+    "{运营模块1}": "{运营模块A}.json",
+    "{业务模块1}": "{业务模块A}.json",
+    "{业务模块2}": "{业务模块B}.json",
+    "{采购模块1}": "{采购模块A}.json",
+    "{交易模块1}": "{交易模块A}.json",
+    "{交易模块2}": "{交易模块B}.json",
+    "{平台模块1}": "{模块A}.json",
+    "{平台模块2}": "{模块B}.json",
+    "{平台模块3}": "{模块C}.json",
+    "{平台模块4}": "{模块D}.json",
+    "{平台模块5}": "{模块E}.json",
+    "{平台模块6}": "{模块F}.json",
+    "{平台模块7}": "{模块G}.json",
+    "{平台模块8}": "{模块H}.json",
+    "{集成模块1}": "{集成模块A}.json",
+    "{集成模块2}": "{集成模块B}.json",
+    "{集成模块3}": "{集成模块C}.json",
+    "{集成模块4}": "{集成模块D}.json"
+  }
+}

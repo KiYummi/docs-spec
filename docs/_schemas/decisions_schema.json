@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ips.local/schemas/decisions_schema.json",
+  "title": "IPS Decision Log",
+  "description": "原则性决策记录。仅收录满足三问门禁的决策：(1)跨3+模块或推翻成本极高或方法论偏好 (2)结论尚未写入任何PRD/ER/架构文档 (3)删掉后会导致后续重复争论同一问题。具体业务方案归入对应PRD/架构文档，不入此文件。",
+  "type": "object",
+  "required": ["$schema", "version", "last_updated", "principle_criteria", "decisions"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema file."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Schema version, e.g. 2.0."
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO date of the last update."
+    },
+    "principle_criteria": {
+      "type": "string",
+      "description": "收录标准说明，Agent写入前必须自问三条门禁。",
+      "const": "① 影响3+模块 或 推翻成本极高 或 方法论偏好；② 结论尚未写入任何PRD/ER/架构文档；③ 删掉后会导致后续重复争论同一问题。三条全通过才可写入。"
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "date", "topic", "category", "scope", "decision", "reason", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^D-\\d{3}$",
+            "description": "Sequential decision ID."
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the decision was made."
+          },
+          "topic": {
+            "type": "string",
+            "description": "Short title of the decision."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "methodology",
+              "product_philosophy",
+              "core_definition"
+            ],
+            "description": "methodology=工作方法论/团队协作方式; product_philosophy=产品对外呈现的抽象原则; core_definition=核心实体定义，防止后续重复争论。"
+          },
+          "scope": {
+            "type": "string",
+            "description": "适用范围/场景，说明本原则在哪些场景下适用。"
+          },
+          "decision": {
+            "type": "string",
+            "description": "The decision made."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Rationale for the decision."
+          },
+          "impact": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Files or modules affected."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["confirmed", "implemented", "deferred", "superseded"],
+            "description": "Current status of the decision."
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["date", "decision", "reason"],
+              "additionalProperties": false,
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "decision": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Change history of this decision."
+          },
+          "source_ref": {
+            "type": "string",
+            "description": "Original audit/report reference, e.g. C-1, H-4, AP-08."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,174 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "state_machine_schema.json",
+  "title": "IPS State Machine Dictionary Schema",
+  "description": "Validates state machine dictionary files. SSOT for all state machine definitions — values, transitions, triggers, side effects, preconditions.",
+  "type": "object",
+  "required": ["$schema", "module", "module_id", "layer", "source_prd", "source_enum", "state-machines"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../../_schemas/state_machine_schema.json"
+    },
+    "module": {
+      "type": "string",
+      "minLength": 1
+    },
+    "module_id": {
+      "type": "string",
+      "pattern": "^([A-Z]{2,4}-[0-9]{2}|Global)$"
+    },
+    "layer": {
+      "type": "string",
+      "enum": ["DATA", "COL", "INT", "{应用层}", "Global"]
+    },
+    "source_prd": {
+      "type": "string",
+      "description": "Link to the Sub PRD section that defines this module's state machines"
+    },
+    "source_enum": {
+      "type": "string",
+      "description": "Link to the Enum JSON file for this module (values source)"
+    },
+    "state-machines": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["name", "entity", "initial", "states", "transitions"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*_fsm$",
+            "description": "Machine identifier must end with _fsm suffix, e.g. 'contract_status_fsm'"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string",
+            "minLength": 1,
+            "description": "ER table this machine governs"
+          },
+          "initial": {
+            "type": "string",
+            "minLength": 1
+          },
+          "states": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["code", "name_zh"],
+              "additionalProperties": false,
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "name_zh": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "is_terminal": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "concurrency_control": {
+            "type": "object",
+            "description": "Concurrency control strategy for this state machine",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["optimistic_lock", "pessimistic_lock", "none"]
+              },
+              "field": {
+                "type": "string",
+                "description": "Field used for concurrency control (e.g. version)"
+              }
+            }
+          },
+          "transitions": {
+            "type": "array",
+            "minItems": 0,
+            "items": {
+              "type": "object",
+              "required": ["from", "to", "trigger"],
+              "additionalProperties": false,
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "to": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "trigger": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Action/event that causes this transition"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "guard": {
+                  "type": ["string", "null"],
+                  "description": "Precondition that must be true; null if no precondition"
+                },
+                "approval_required": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "side_effects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["type", "description"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["publish_event", "update_entity", "notify", "trigger_workflow", "other"]
+                      },
+                      "target": {
+                        "type": "string",
+                        "description": "What is affected, e.g. event name or entity"
+                      },
+                      "description": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "inverse_path": {
+                  "type": ["string", "null"],
+                  "description": "If reversible, describes the reverse transition trigger; null if irreversible"
+                },
+                "edge_cases": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "prd_reference": {
+                  "type": "string",
+                  "description": "Section in Sub PRD defining this transition's business rules"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

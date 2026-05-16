@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Patch Schema",
+  "description": "结构化补丁格式定义，用于残差审计后的文档修正",
+  "type": "object",
+  "required": ["id", "target", "op", "reason", "source_requirement", "impact", "timestamp"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "补丁 ID，格式：P{序号}",
+      "pattern": "^P[0-9]+$",
+      "examples": ["P001", "P002"]
+    },
+    "target": {
+      "type": "string",
+      "description": "目标文件路径（相对路径）",
+      "examples": ["docs/00_meta/master-prd.md", "docs/02_backend/specs/GLOBAL_HLD.md"]
+    },
+    "op": {
+      "type": "string",
+      "description": "操作类型",
+      "enum": ["replace", "add", "remove"]
+    },
+    "path": {
+      "type": "string",
+      "description": "JSON 指针或 Markdown 章节路径",
+      "examples": ["#/properties/name", "## 1. 需求描述"]
+    },
+    "value": {
+      "description": "新值（replace/add 操作时必填）"
+    },
+    "oldValue": {
+      "description": "旧值（replace/remove 操作时可选）"
+    },
+    "reason": {
+      "type": "string",
+      "description": "修改原因，必须说明为什么需要这个修改",
+      "minLength": 10
+    },
+    "source_requirement": {
+      "type": "string",
+      "description": "来源需求 ID，格式：@req-id: R{序号}",
+      "pattern": "^@req-id: R[0-9]+$",
+      "examples": ["@req-id: R001", "@req-id: R002"]
+    },
+    "impact": {
+      "type": "array",
+      "description": "影响范围，列出受影响的文件或模块",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["docs/02_backend/specs/GLOBAL_HLD.md", "docs/03_api/contracts/"]]
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "补丁创建时间戳",
+      "format": "date-time"
+    },
+    "author": {
+      "type": "string",
+      "description": "补丁作者（人或 Agent）"
+    },
+    "status": {
+      "type": "string",
+      "description": "补丁状态",
+      "enum": ["pending", "approved", "rejected", "applied"],
+      "default": "pending"
+    },
+    "approvedBy": {
+      "type": "string",
+      "description": "审批人（人在回路）"
+    },
+    "approvedAt": {
+      "type": "string",
+      "description": "审批时间戳",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

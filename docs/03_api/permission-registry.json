@@ -1,0 +1,44 @@
+{
+  "$schema": "../_schemas/permission_registry_schema.json",
+  "permissions": [
+    {
+      "code": "{module}:{resource}:{action}",
+      "module": "{MODULE_ID}",
+      "name_zh": "{权限名称}",
+      "description": "{权限描述}",
+      "risk_level": "standard",
+      "rate_limit_level": "normal",
+      "api_endpoints": [
+        "{METHOD} /api/v1/{resource}"
+      ],
+      "roles_allowed": [],
+      "prd_reference": ""
+    },
+    {
+      "code": "auth:user:read",
+      "module": "AUTH",
+      "name_zh": "查看用户信息",
+      "description": "查看用户基本信息",
+      "risk_level": "standard",
+      "rate_limit_level": "relaxed",
+      "api_endpoints": [
+        "GET /api/v1/users/:id"
+      ],
+      "roles_allowed": [],
+      "prd_reference": ""
+    },
+    {
+      "code": "auth:user:create",
+      "module": "AUTH",
+      "name_zh": "创建用户",
+      "description": "创建新用户",
+      "risk_level": "sensitive",
+      "rate_limit_level": "strict",
+      "api_endpoints": [
+        "POST /api/v1/users"
+      ],
+      "roles_allowed": [],
+      "prd_reference": ""
+    }
+  ]
+}

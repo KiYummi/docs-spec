@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ips.local/schemas/_index_schema.json",
+  "title": "IPS Global Index",
+  "description": "Validates docs/_index.json — the Agent entry map for all module file paths.",
+  "type": "object",
+  "required": ["version", "generated_at", "description"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "description": {
+      "type": "string"
+    },
+    "tables": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Module ID → relative path to ER table JSON."
+      }
+    },
+    "enums": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Module ID → relative path to enum JSON."
+      }
+    },
+    "api": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Module ID → relative path to API contract JSON."
+      }
+    },
+    "api_globals": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "state-machines": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Module ID → relative path to State Machine Dictionary JSON."
+      }
+    },
+    "registries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Global registry artifact → relative path."
+      }
+    },
+    "architecture": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "prds": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "schemas": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "memory": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "code": {
+      "type": "object",
+      "description": "Code structure index — backend/internal/ module paths. See 02_backend/architecture/codebase-architecture.md.",
+      "properties": {
+        "_description": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^backend/internal/module/.+/$",
+            "description": "Platform module name → directory path."
+          }
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^backend/internal/module/.+/$",
+            "description": "Data module name → directory path."
+          }
+        },
+        "saas": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^backend/internal/module/.+/$",
+            "description": "{应用层} business domain name → directory path."
+          }
+        },
+        "shared": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^backend/internal/(shared|tenant)/.+/$",
+            "description": "Shared kernel module → directory path."
+          }
+        },
+        "cross-cutting": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^backend/internal/(entitlement|scheduler|realtime)/.+/$",
+            "description": "Cross-cutting concern → directory path."
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Agent configuration entry → relative path."
+      }
+    },
+    "frontend": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Frontend design system entry → relative path."
+      }
+    }
+  }
+}

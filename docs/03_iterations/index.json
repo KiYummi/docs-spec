@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Global Requirements Index",
+  "description": "全局需求-制品索引模板，用于全链路索引",
+  "type": "object",
+  "required": ["version", "requirements"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "索引版本",
+      "examples": ["1.0.0"]
+    },
+    "lastUpdated": {
+      "type": "string",
+      "description": "最后更新时间",
+      "format": "date-time"
+    },
+    "requirements": {
+      "type": "object",
+      "description": "需求索引",
+      "additionalProperties": {
+        "$ref": "#/definitions/Requirement"
+      }
+    }
+  },
+  "definitions": {
+    "Requirement": {
+      "type": "object",
+      "required": ["id", "description", "source", "priority", "artifacts"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "需求 ID",
+          "pattern": "^R[0-9]+$",
+          "examples": ["R001", "R002"]
+        },
+        "description": {
+          "type": "string",
+          "description": "需求描述"
+        },
+        "source": {
+          "type": "string",
+          "description": "需求来源（PRD 章节）"
+        },
+        "priority": {
+          "type": "string",
+          "description": "优先级",
+          "enum": ["P0", "P1", "P2"]
+        },
+        "semanticElements": {
+          "type": "array",
+          "description": "语义要素",
+          "items": {
+            "type": "string"
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "description": "承接的制品列表",
+          "items": {
+            "$ref": "#/definitions/Artifact"
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "需求状态",
+          "enum": ["pending", "in-progress", "completed", "cancelled"]
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "创建时间",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "更新时间",
+          "format": "date-time"
+        }
+      }
+    },
+    "Artifact": {
+      "type": "object",
+      "required": ["type", "path"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "制品类型",
+          "enum": ["prd", "sub-prd", "lld", "api", "database", "test"]
+        },
+        "path": {
+          "type": "string",
+          "description": "制品路径（相对路径）"
+        },
+        "section": {
+          "type": "string",
+          "description": "制品章节"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "API 端点（仅 API 类型）"
+        },
+        "status": {
+          "type": "string",
+          "description": "制品状态",
+          "enum": ["pending", "in-progress", "completed"]
+        },
+        "verifiedAt": {
+          "type": "string",
+          "description": "验证时间",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
