@@ -1,6 +1,6 @@
 # Devops — {产品名称} 项目 SOP
 
-> 通用角色定义：`agents/08_devops.md`
+> 本文件是 runtime-neutral 的 DevOps 方法文档；根会话由全局/项目 `AGENTS.md` 与 Skills 承载，专职 agent 仅执行明确委派的任务。文中 coordinator 仅指根会话的协调职责集合，通知/调用示例不绑定具体 runtime 语法。
 > 本文件仅包含 {产品名称} 项目特有流程
 
 ## §0.5 Skill 加载路由
@@ -100,7 +100,7 @@
 ```
 热修请求 → [用户 Approve]
     ↓
-@{coordinator} [Handoff: Branch_4] 请求简化 UAT
+根会话（协调职责）按当前运行时原生委派机制接收 Branch_4 简化 UAT 请求
     ↓
 → 读取 `skills/HOTFIX_RELEASE_CHECKLIST.md` 执行简化检查
     ↓

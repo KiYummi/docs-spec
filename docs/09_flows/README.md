@@ -62,7 +62,7 @@
 | reviewer | 检查术语一致性 |
 | qa | 检查需求覆盖率 |
 | residual-auditor | 执行残差审计，输出补丁建议 |
-| coordinator | 触发审计，审核结果，签发补丁，记录日志 |
+| 根会话 | 触发审计，审核结果，保留用户决策与记录 |
 
 ---
 
@@ -73,12 +73,14 @@
 | `prd-to-subprd.md` | PRD → Sub-PRD 流程：pm 提取 + 人确认 |
 | `subprd-to-lld.md` | Sub-PRD → LLD 流程：docs/architect 填写 + 人确认 |
 | `lld-to-api.md` | LLD → API 流程：docs 填写 + 人确认 |
-| `audit-flow.md` | 残差审计流程：coordinator 触发 + auditor 执行 + 人签发补丁 |
-| `sp-execution-flow.md` | SP 执行流程：MOE 团队模型（coordinator 门控 + 专家分工 + reviewer 审查） |
+| `audit-flow.md` | 残差审计流程：根会话触发 + auditor 执行 + 人签发补丁 |
+| `sp-execution-flow.md` | SP 执行方法：根会话（由全局/项目 AGENTS.md + Skills 承载）委派专职角色，reviewer 审查 |
 
 ---
 
-## 四、MOE 团队模型（SP 执行）
+## 四、MOE 方法模型（SP 执行）
+
+> 本节描述角色分工方法，不定义独立的 primary/coordinator runtime。根会话由当前运行时的全局 `AGENTS.md`、项目 `AGENTS.md` 与 Skills 承载；专职 agent 仅执行明确委派的任务。
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -86,8 +88,8 @@
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │              Coordinator（门控网络）                       │   │
-│  │    根据 Phase 类型动态选择执行 agent                       │   │
+│  │              根会话（范围与验证门控）                       │   │
+│  │    根据 Phase 类型委派专职 agent                           │   │
 │  └───────────────────────┬─────────────────────────────────┘   │
 │                          │                                      │
 │       ┌──────────────────┼──────────────────┐                  │

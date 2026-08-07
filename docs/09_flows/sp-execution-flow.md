@@ -2,19 +2,20 @@
 
 > **适用范围**：文档工程体系（docs-spec）
 > **最后更新**：2026-05-16
-> **涉及 Agent**：coordinator, pm, architect, docs, backend, frontend, reviewer, residual-auditor
+> **涉及角色**：pm, architect, docs, backend, frontend, reviewer, residual-auditor；协调职责由根会话承担
 > **涉及思想**：MOE（混合专家模型）、门控机制、稀疏激活
+> **运行时边界**：本文件是 runtime-neutral 方法文档，不定义独立 primary/coordinator runtime。根会话由当前运行时的全局/项目 `AGENTS.md` 与 Skills 承载，专职 agent 仅执行明确委派的任务。
 
 ---
 
 ## 一、流程概述
 
 ```
-coordinator：接收任务
+根会话：接收任务
     ↓
-coordinator：判断任务类型（门控）
+根会话：判断任务类型（范围/风险门控）
     ↓
-coordinator：选择执行 Agent（稀疏激活）
+根会话：按当前运行时委派机制选择专职 Agent（稀疏激活）
     ↓
 执行 Agent：执行任务
     ↓
@@ -22,7 +23,7 @@ reviewer：审查结果
     ↓
 residual-auditor：审计保真度
     ↓
-coordinator：汇总结果
+根会话：汇总结果
     ↓
 人：确认
 ```
@@ -35,7 +36,7 @@ coordinator：汇总结果
 
 | 原角色 | MOE 角色 | Agent | 职责 |
 |--------|---------|-------|------|
-| 调度+决策+记录 | 门控网络 | Coordinator | 根据 Phase 类型动态选择执行 agent；审查结果；决策问题；记录 |
+| 调度+决策+记录 | 根会话职责 | 根会话 | 根据 Phase 类型委派专职 agent；汇总审查结果；保留用户决策与记录 |
 | 执行（PRD 类） | 专家 1 | pm | 写 PRD 相关的 Phase 文档 |
 | 执行（架构类） | 专家 2 | architect | 写架构相关的 Phase 文档 |
 | 执行（技术文档类） | 专家 3 | docs | 写技术文档相关的 Phase 文档 |
@@ -66,31 +67,31 @@ coordinator：汇总结果
 
 ## 三、详细步骤
 
-### 步骤 1：接收任务（coordinator）
+### 步骤 1：接收任务（根会话）
 
-**职责**：coordinator 接收任务
+**职责**：根会话接收任务
 
 **操作**：
 1. 接收用户任务
 2. 分析任务类型
 3. 确定执行 Agent
 
-### 步骤 2：判断任务类型（coordinator）
+### 步骤 2：判断任务类型（根会话）
 
-**职责**：coordinator 判断任务类型（门控）
+**职责**：根会话判断任务类型（门控）
 
 **操作**：
 1. 分析任务内容
 2. 判断任务类型（PRD/架构/技术文档/代码/审查/审计）
 3. 选择执行 Agent
 
-### 步骤 3：选择执行 Agent（coordinator）
+### 步骤 3：选择执行 Agent（根会话）
 
-**职责**：coordinator 选择执行 Agent（稀疏激活）
+**职责**：根会话选择执行 Agent（稀疏激活）
 
 **操作**：
 1. 根据任务类型选择 Agent
-2. 调用 `task(subagent_type="xxx")`
+2. 按当前运行时的原生委派机制调用专职 agent
 3. 传递任务上下文
 
 ### 步骤 4：执行任务（执行 Agent）
@@ -128,9 +129,9 @@ coordinator：汇总结果
 
 **输出**：审计报告
 
-### 步骤 7：汇总结果（coordinator）
+### 步骤 7：汇总结果（根会话）
 
-**职责**：coordinator 汇总结果
+**职责**：根会话汇总结果
 
 **操作**：
 1. 汇总执行结果
@@ -208,7 +209,7 @@ coordinator：汇总结果
 
 **触发时机**：每次人做决策时
 
-**记录者**：coordinator
+**记录者**：根会话（协调职责）
 
 **日志格式**：
 
@@ -262,7 +263,7 @@ coordinator：汇总结果
 
 **触发时机**：每次规则变更时
 
-**记录者**：coordinator
+**记录者**：根会话（协调职责）
 
 **日志格式**：
 

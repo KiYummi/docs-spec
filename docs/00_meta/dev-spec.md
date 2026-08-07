@@ -16,6 +16,8 @@
 | V1.2 | {修订日期} | 新增任务分级路由、上下文雪崩防护、活文档强制要求、更新 UAT 清单 | {修订人} | {审核人} |
 | V1.3 | 2026/3/23 | Phase 术语统一、三层记忆结构增加 modules 层、UAT 补充热修场景 | {修订人} | {审核人} |
 
+> **运行时边界（当前执行契约）**：本文保留流程方法与历史角色占位符，但当前根会话由运行时全局/项目 `AGENTS.md` 与 Skills 承载范围、验证和用户沟通；`coordinator`/`{coordinator}` 等旧别名仅表示根会话承担的协调职责集合，不是独立 primary/coordinator runtime、权限主体或可加载配置。文中的 `@...`、通知、唤醒、调用与 Handoff 仅是逻辑记录格式；实际委派必须使用当前运行时的原生机制。旧图示或旧别名不构成当前执行配置。
+
 ## **1\. 语义化版本控制规范 (Semantic Versioning)**
 
 本项目及所有工程产出物的版本号升迁，严格遵循语义化版本控制规范（SemVer 2.0.0）。版本号格式固定为 `vX.Y.Z`（主版本号.次版本号.修订号）。
@@ -76,7 +78,7 @@
 ├── CLAUDE.md                     # Claude Code 入口
 ├── GEMINI.md                     # Gemini CLI 入口
 ├── README.md
-├── agents/           # Agent 角色定义（含 skills/ 可复用检查清单、base_agent_template.md, step_plan_template.md）
+├── docs/04_agent/sop/ # Agent 角色 SOP/方法文档（runtime-neutral；根会话由全局/项目 AGENTS.md + Skills 承载）
 └── docs/                         # 📂 文档库（子目录）
     ├── 00_meta/          # 全局架构与规范
     │   ├── Templates/            # 文档模板（含 step_plan_template.md 等；ER/ENUM/Index 模板已迁移为 JSON Schema，见 _schemas/*.json）
@@ -154,7 +156,7 @@ docs// (外部业务资产大本营)
     │   ├── decisions.json          # 原则性决策（工作方法论/产品哲学/核心概念定义，非具体方案）
     │   ├── conventions.md         # 编码约定
     │   ├── pitfalls.md            # 踩坑记录（按模块分类）
-    │   └── workflow_state.json     # 流程状态（Agent_02 维护）
+│   └── workflow_state.json     # 流程状态（根会话维护）
     ├── modules/                   # 模块层（按领域）【豁免】
     │   ├── UAC/
     │   │   └── pitfalls.md
@@ -221,7 +223,7 @@ docs// (外部业务资产大本营)
 
 ```markdown
 # {backend} → {coordinator} (审查请求)
-@{coordinator} [Handoff: Branch_2] Task-3 开发完成，请求 API 契约一致性审查
+根会话（协调职责）按当前运行时原生委派机制接收 Branch_2 审查请求：Task-3 开发完成，请求 API 契约一致性审查
 
 [Diff Summary]
 **变更范围 (Scope)**: 修改 src/backend/services/department_service.py, 新增 tests/unit/test_department.py
@@ -246,7 +248,7 @@ docs// (外部业务资产大本营)
 2. **上下文硬隔离**：下游 Agent 只能读取 Mount Context 指定的文件
 3. **会话清空**：交接时必须清空当前会话的 Message History
 4. **Reasoning 传递**：若需求包内存在 `reasoning/*.md`，必须作为 Mount Context 的一部分传递
-5. **Diff Summary 回传**：下游 Agent 完成任务后回传 `{coordinator}` 审查时，**必须**携带标准化的 `[Diff Summary]`（含变更范围、核心逻辑变更、风险自评、关联 AC），详见 `{coordinator_agent}.md` §1.1.1
+5. **Diff Summary 回传**：下游 Agent 完成任务后交由根会话承担的 coordinator 逻辑职责审查时，**必须**携带标准化的 `[Diff Summary]`（含变更范围、核心逻辑变更、风险自评、关联 AC）；具体回执字段以当前运行时的 `AGENTS.md` 与 Skills 为准。
 
 ## **4\. AI 智能体研发流水线与交付物契约 (Agentic Pipeline & Artifacts)**
 
@@ -254,7 +256,7 @@ docs// (外部业务资产大本营)
 
 > **⚠️ 流水线架构升级说明**：本项目流水线已从传统的线性串行模式升级为**带拦截网的非线性网状结构（铁三角会审制）**。
 > - **测试左移**：QA Agent (Agent_07) 在 Phase 2 阶段就介入，对 PRD 进行红蓝对抗攻击
-> - **全流程 {审核人}**：Agent_02 (Coordinator) 不再仅负责路由，而是作为"业务护城河"参与 Phase 3-6 的跨阶段审查
+> - **全流程 {审核人}**：根会话承担协调职责，不再仅负责路由，而是作为"业务护城河"参与 Phase 3-6 的跨阶段审查
 > - **非线性流转**：产出不能直接流入下一阶段，必须经过业务审计门禁
 
 ### **4.0 铁三角会审制 (Iron Triangle Review)**
@@ -269,14 +271,14 @@ docs// (外部业务资产大本营)
         ┌───────────┴───────────┐
         │                       │
 ┌───────┴───────┐       ┌───────┴───────┐
-│ Agent_02      │       │ 执行 Agent    │
+│ 根会话        │       │ 执行 Agent    │
 │ (业务护卫)     │◄─────►│ (技术实现)    │
 └───────────────┘       └───────────────┘
 ```
 
 - **用户**：最终决策者，对高危操作拥有一票否决权
-- **Agent_02 (业务护卫)**：负责业务防偏离审查，拥有主动向 `docs/04_agent/memory/global/decisions.json` 写入原则性决策的特权（须通过三问门禁）
-- **执行 Agent**：负责技术实现，产出需经 Agent_02 审查
+- **根会话（协调职责）**：负责业务防偏离审查，原则性决策仍须通过三问门禁并由用户确认后写入 `docs/04_agent/memory/global/decisions.json`
+- **执行 Agent**：负责技术实现，产出需经根会话审查
 
 **非线性流转示意**：
 ```
@@ -285,14 +287,14 @@ Phase 1/2 ───────────────────────�
   │  PRD ──► Agent_07 (红蓝对抗) ──► Agent_01         │
   │           │                        │              │
   │           ▼                        ▼              │
-  │       修补PRD ◄── Agent_02 ◄── Agent_03          │
+  │       修补PRD ◄── 根会话 ◄── Agent_03            │
   │                   (业务审计)     (架构设计)        │
   │                                     │              │
   │                                     ▼              │
-  │                              Agent_04/05 ◄── Agent_02 (API审查)
+  │                              Agent_04/05 ◄── 根会话 (API审查)
   │                                     │              │
   │                                     ▼              │
-  │                              Agent_06/07 ──► Agent_02 (缺陷定级)
+  │                              Agent_06/07 ──► 根会话 (缺陷定级)
   │                                     │              │
   └─────────────────────────────────────┴──────────────┘
 ```
@@ -323,9 +325,9 @@ Phase 1/2 ───────────────────────�
 | **G2** | **P1 Step 2: 架构蓝图** | 生成 DAG 执行流与模块拆解 | `{pm}` | `global-blueprint.md` | `{coordinator}` | 灵魂三问 + [用户 Approve] |
 | **G3** | **P2: 产品与需求设计** | Sub PRD + 红蓝对抗 | `{pm}` + `{qa}` | 14 份 PRD、红蓝攻击报告 | `{architect}` | Agent_07 攻击通过 + [用户 Approve] |
 | **G4** | **P3: 数据模型** | ER 图 + 枚举字典 + 状态机字典 | `{architect}` + `{coordinator}` | `backend/data-model/tables/*.json`（141 张表）、`enums/*.json`（枚举值）、`state-machines/*.json`（状态机字典）、`SYNC_ISSUES_Phase1.md` | 后续 Gate | 16 项同步检查全过 + [用户 Approve] |
-| **G5** | **P3: API 契约** | 全局 API 契约 + 权限注册表 + 错误码 + 幂等 | `{architect}` + `{coordinator}` | `api/contracts/`、`permission_registry.json`、`ERROR_CODE_DICT.md`、`FRONTEND_ROUTES.md`、`IDEMPOTENCY_SPEC.md` | 后续 Gate | Agent_02 API 审查 + 前端可用性确认 + [用户 Approve] |
+| **G5** | **P3: API 契约** | 全局 API 契约 + 权限注册表 + 错误码 + 幂等 | `{architect}` + `{coordinator}` | `api/contracts/`、`permission_registry.json`、`ERROR_CODE_DICT.md`、`FRONTEND_ROUTES.md`、`IDEMPOTENCY_SPEC.md` | 后续 Gate | 根会话 API 审查 + 前端可用性确认 + [用户 Approve] |
 | **G6** | **P3: 红蓝攻击+架构评估** | PRD 级 + 架构级安全评估 | `{qa}` + `{coordinator}` | `reports/REDBLUE_REPORT.md`、`ARCH_HEALTH_REPORT.md` | 后续 Gate | 红蓝对抗全通过 + 架构评估无 P0 + [用户 Approve] |
-| **G7a** | **P3: Master LLD** | 全局架构落地 | `{architect}` + `{coordinator}` | `backend/specs/` 下 10 份文档（GLOBAL_HLD、DESIGN_SYSTEM、DEV_STANDARDS、AOP_DESIGN、CACHE_STRATEGY、FEATURE_FLAGS、DATA_PERMISSION_MATRIX、MONITORING_DASHBOARD、NFR_REGISTRY、SECURITY_BASELINE） | 后续 Gate | Agent_02 业务一致性审计 + [用户 Approve] |
+| **G7a** | **P3: Master LLD** | 全局架构落地 | `{architect}` + `{coordinator}` | `backend/specs/` 下 10 份文档（GLOBAL_HLD、DESIGN_SYSTEM、DEV_STANDARDS、AOP_DESIGN、CACHE_STRATEGY、FEATURE_FLAGS、DATA_PERMISSION_MATRIX、MONITORING_DASHBOARD、NFR_REGISTRY、SECURITY_BASELINE） | 后续 Gate | 根会话业务一致性审计 + [用户 Approve] |
 | **G7b** | **P3: Sub LLD 骨架** | 各模块 LLD 骨架 | `{architect}` + `{coordinator}` | 各模块 LLD 骨架（Task Name + Mount Context） | 后续 Gate | 两段式第一阶段：骨架审计 + [用户 Approve] |
 | **G7c** | **P3: Sub LLD 血肉** | LLD 完整版 + step_plan | `{architect}` + `{coordinator}` | 各模块 LLD 完整版 + `step_plan.md`（含 AC） | 后续 Gate | 两段式第二阶段：血肉审计 + [用户 Approve] |
 | **G7d** | **P3: 迁移脚本** | Flyway UP+DOWN | `{architect}` | `backend/lld/migrations/` 迁移脚本 | 后续 Gate | UP→DOWN→UP 验证通过 → **Schema Freeze 启动** |
@@ -371,7 +373,7 @@ Phase 1/2 ───────────────────────�
     ↓
 在 step_plan.md 记录 🔄 回退申请（含影响范围、恢复版本、数据库影响）
     ↓
-@{coordinator} [Handoff: Branch_5] 请求回退评估（含数据库回滚检查）
+根会话（协调职责）按当前运行时原生委派机制接收 Branch_5 回退评估请求（含数据库回滚检查）
     ↓
 {coordinator} 输出 🔄 回退建议
     ↓
@@ -503,7 +505,7 @@ graph TD
     %% Actors
     User((用户)):::human
     Agent01[{pm}<br/>Enterprise PM]:::agent
-    Agent02[{coordinator}<br/>Coordinator]:::agent
+    RootSession[根会话<br/>协调职责]:::agent
     Agent03[{architect}<br/>System Architect]:::agent
     Agent04[{backend}<br/>Backend Dev]:::agent
     Agent05[{frontend}<br/>Frontend Dev]:::agent
@@ -543,8 +545,8 @@ graph TD
 
     %% Task Routing Flow
     User -- "提交任务" --> Agent01
-    Agent01 -- "PRD定稿后" --> Agent02
-    Agent02 -- "路由判断" --> TaskRouter
+    Agent01 -- "PRD定稿后" --> RootSession
+    RootSession -- "路由判断" --> TaskRouter
     TaskRouter -- "快车道" --> FastLane
     TaskRouter -- "慢车道" --> SlowLane
     FastLane -- "直接执行" --> User
@@ -603,7 +605,7 @@ graph TD
 > **铁律**：即使代码已经合入 main 分支，`{devops}` 也**绝对不允许**直接打 Git Tag 或触发生产部署。
 
 **发版前置条件**（9 项完整清单，参见 `quality-gate.md` §Gate 10）：
-1. **@{coordinator} [Handoff: Branch_4]**：请求 UAT Sign-off，确认《发版资产与业务验收表》已齐备
+1. **根会话（协调职责）**：按当前运行时原生委派机制接收 Branch_4 UAT Sign-off 请求，确认《发版资产与业务验收表》已齐备
    - [ ] PRD 文档完整
    - [ ] LLD/API 契约已更新
    - [ ] 测试报告通过
@@ -716,7 +718,7 @@ graph TD
 **Step 7: 发版 (Phase 6) - 含 UAT Sign-off**
 - **用户动作**: 告诉 `{devops}`: "本期需求已测试通过，准备打 Release 标签发版。"
 - **UAT Sign-off 门禁** (⚠️ **强制执行**):
-  1. **@{coordinator} [Handoff: Branch_4]**：`{devops}` 必须使用标准协议请求 UAT Sign-off，确认《发版资产与业务验收表》已齐备
+  1. **根会话（协调职责）**：`{devops}` 必须按当前运行时原生委派机制请求 UAT Sign-off，确认《发版资产与业务验收表》已齐备
   2. **显式等待用户授权**：在终端输出："⚠️ 发版前 UAT Sign-off 检查：请确认资产已齐备。确认后请回复 `[UAT Approved - Ready for Release]` 以放行。"
   3. **无授权不发版**：若未收到用户的明确授权指令，**绝对禁止**执行后续的 `git tag` 和部署动作
 - **Agent 流转** (收到 `[UAT Approved - Ready for Release]` 后): `{devops}` 会执行以下动作：
@@ -1063,7 +1065,7 @@ Deferred（延期到下一版本）
 ### **5.4 编码执行与单元验证 (Harness Engineering & Agentic Workflows)**
 
 1. **记忆恢复 (Memory Recovery)**：Agent 启动后，必须先读取 `docs/04_agent/memory/` 下的三层记忆结构（见 §6.5），恢复项目历史上下文。
-2. **智能体角色激活 (Agent Activation)**：根据任务类型（需求、架构、编码），激活 `agents/` 中对应的 Agent 角色，确保 AI 以专业视角介入。
+2. **智能体角色激活 (Agent Activation)**：根据任务类型（需求、架构、编码），由根会话按当前运行时委派机制选择 `docs/04_agent/sop/` 中对应的专职角色方法，并由全局/项目 `AGENTS.md` 与 Skills 承载准入和验证。
 3. **计划具象化 (Plan as Artifact)**：要求 AI 在**需求包的 `plan/` 目录**下输出 `step_plan.md`，审查思路无破坏性后再批准动手。
 4. **挂载上下文 (Context)**：精准引入当前任务相关的文档和组件，绝不让 AI 盲猜全局逻辑。
 5. **多代理反思 (Agentic Reflection)**：核心代码生成后，Agent 通过其 `§0.5 Skill 加载路由` 加载对应 Skill（如 `skills/BACKEND_SELF_CHECK.md`、`skills/FRONTEND_SELF_CHECK.md`）进行逐条自检。
@@ -1171,7 +1173,7 @@ docs/04_agent/memory/
 │   ├── decisions.json          # 原则性决策（工作方法论/产品哲学/核心概念定义，非具体方案）
 │   ├── conventions.md         # 编码约定
 │   ├── pitfalls.md            # 踩坑记录（按模块分类）
-│   └── workflow_state.json     # 流程状态（Agent_02 维护）
+│   └── workflow_state.json     # 流程状态（根会话维护）
 │
 ├── modules/                   # 模块层（按领域）【豁免】
 │   ├── UAC/
@@ -1205,7 +1207,7 @@ docs/04_agent/memory/
 | `decisions.json` | 原则性决策（仅限工作方法论/产品哲学/核心概念定义，三问门禁通过） | 为什么"AI 不暴露系统细节给租户" |
 | `conventions.md` | 编码约定 | 时间格式统一使用 UTC，金额使用分为单位 |
 | `pitfalls.md` | 踩坑记录（按模块分类） | pgvector 索引必须在数据导入后创建 |
-| `workflow_state.json` | 流程状态追踪（Agent_02 维护），含 mermaid_text 字段 | 当前阶段、活跃 Agent、阻塞任务、流程历史 |
+| `workflow_state.json` | 流程状态追踪（根会话维护），含 mermaid_text 字段 | 当前阶段、活跃 Agent、阻塞任务、流程历史 |
 
 #### **6.5.4 记录格式规范**
 
@@ -1401,4 +1403,3 @@ docs/04_agent/memory/
 ### **11.4 强迫症级的环境清理 (Branch Cleanup)**
 * **阅后即焚**：一旦 PR 被成功合并至 `main`，**必须立即删除**对应的 `feature/` 或 `bugfix/` 远程与本地分支。
 * **保持整洁**：防止历史废弃分支堆积，彻底杜绝日后代码提交错位的风险，确保代码仓库绝对清爽。
-
