@@ -1,6 +1,6 @@
 # Backend — {产品名称} 项目 SOP
 
-> 通用角色定义：`agents/04_backend.md`
+> 本文件是 runtime-neutral 的后端方法文档；根会话由全局/项目 `AGENTS.md` 与 Skills 承载，专职 agent 仅执行明确委派的任务。文中 coordinator 仅指根会话的协调职责集合，通知/调用示例不绑定具体 runtime 语法。
 > 本文件仅包含 {产品名称} 项目特有流程
 
 ## §0.5 Skill 加载路由

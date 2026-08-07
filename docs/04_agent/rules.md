@@ -6,8 +6,9 @@
 
 ## 0. 全局角色与 Skills
 
-> 通用角色定义参见 `agents/`（8 个角色），通用 Skills 检查清单参见 `agents/skills/`（12 个）。
-> 本文件仅包含 {产品名称} 项目特有规则。Coordinator 角色负责团队建队和任务调度，参见 `agents/02_coordinator.md`。
+> 本文件仅包含 {产品名称} 项目特有规则。角色方法文档在 `docs/04_agent/sop/`，通用 Skills 检查清单在 `skills/`；这些均为 runtime-neutral 方法文档。
+> 根会话由当前运行时的全局/项目 `AGENTS.md` 与 Skills 承载范围、验证和回执；专职 agent 仅执行根会话明确委派的任务，不设独立 primary/coordinator runtime。
+> 文中 `coordinator`/`{coordinator}` 仅表示根会话承担的协调职责集合，不是可加载的独立 runtime agent、权限主体或固定通知/调用语法；示例中的交接格式仅描述方法步骤。
 
 ---
 
@@ -43,7 +44,7 @@
 ## 0.2 MOE 动态调度规则
 
 ### 门控机制
-- Coordinator 是门控网络，根据任务类型动态选择执行 Agent
+- 根会话承担 coordinator 的门控职责，根据任务类型动态选择执行 Agent
 - PRD 类型 → 调用 pm
 - 架构类型 → 调用 architect
 - 技术文档类型 → 调用 docs
@@ -71,9 +72,9 @@ docs/04_agent/logs/
 ### 日志记录规则
 | 日志类型 | 触发时机 | 记录者 | 记录内容 |
 |---------|---------|--------|---------|
-| 决策日志 | 每次人做决策时 | coordinator | 背景 → 选项 → 决策 → 理由 → 影响 |
+| 决策日志 | 每次人做决策时 | 根会话（协调职责） | 背景 → 选项 → 决策 → 理由 → 影响 |
 | 审计日志 | 每次审计完成后 | residual-auditor | 范围 → 推理链 → 发现 → 补丁 → 反思 |
-| 变更日志 | 每次规则变更时 | coordinator | 变更内容 → 变更前 → 变更后 → 预期效果 |
+| 变更日志 | 每次规则变更时 | 根会话（协调职责） | 变更内容 → 变更前 → 变更后 → 预期效果 |
 
 ### 迭代飞轮
 ```
@@ -111,7 +112,7 @@ docs/04_agent/memory/
 │   ├── decisions.json          # 原则性决策（工作方法论/产品哲学/核心概念定义），具体方案归入对应文档
 │   ├── conventions.md         # 编码约定
 │   ├── pitfalls.md            # 踩坑记录（按模块分类）
-│   └── workflow_state.json    # 流程状态（Agent_02 维护，含 mermaid_text 字段）
+│   └── workflow_state.json    # 流程状态（根会话维护，含 mermaid_text 字段）
 │
 ├── modules/                   # 模块层（按领域）【豁免】
 │   ├── {模块1}/
@@ -215,12 +216,12 @@ docs/04_agent/memory/
 
 ## 4. AI 智能体协作流水线
 
-本项目遵循 `agents/` 下定义的多智能体协作规范，检查清单已抽出为独立 Skill 文件（`agents/skills/`），Agent 通过各自 `§0.5 Skill 加载路由` 在特定 SOP 步骤触发时加载：
+本项目遵循 `docs/04_agent/sop/` 下的多智能体协作方法文档，检查清单在 `skills/`；Agent 通过各自 `§0.5 Skill 加载路由` 在特定 SOP 步骤触发时加载：
 
 | Agent | 角色 | 职责 | Skill 文件 |
 |-------|------|------|-----------|
 | {pm} | PM | 需求定义、领域建模、PRD 撰写 | `PRD_QUALITY_CHECKLIST` |
-| {coordinator} | Coordinator | 路由判断、阶段审查、UAT Sign-off | `GATE_AUDIT_CHECKLIST`, `UAT_SIGNOFF_CHECKLIST` |
+| 根会话 | Runtime context | 路由判断、阶段审查、UAT Sign-off | `GATE_AUDIT_CHECKLIST`, `UAT_SIGNOFF_CHECKLIST` |
 | {architect} | System Architect | 架构设计、LLD、任务拆解 | `LLD_QUALITY_CHECKLIST` |
 | {backend} | Backend Developer | 后端编码、单元测试 | `BACKEND_SELF_CHECK`, `CODE_REVIEW_CHECKLIST` |
 | {frontend} | Frontend Developer | 前端开发、UI 组件化 | `FRONTEND_SELF_CHECK` |
@@ -345,7 +346,7 @@ Phase 4 编码阶段采用三级审查，Phase 5 采用 L3 全量集成审查：
     ↓
 在 step_plan.md 记录 🔄 回退申请（含数据库影响标注）
     ↓
-使用 @{coordinator} [Handoff: Branch_5] 请求回退评估（含数据库回滚检查）
+将回退评估（含数据库回滚检查）交由根会话承担的 coordinator 逻辑职责处理
     ↓
 等待 [用户 Confirm]
     ↓
@@ -422,7 +423,7 @@ Step 3: 同步 decisions.json（parse → push 新条目 → serialize）（如�
 
 ### 8.4 角色切换协议
 
-> **适用场景**：用户指示切换 Agent 角色（如 "{coordinator} 审查" → "{architect} 继续"）
+> **适用场景**：用户指示切换 Agent 角色（如“根会话承担协调审查”→“{architect} 继续”）；这里的角色切换是逻辑流程，不是 runtime profile 切换。
 
 **切换前（当前角色）**：
 1. 执行保全三步（§8.3）

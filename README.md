@@ -74,13 +74,15 @@
 
 ---
 
-## 四、Agent 体系（MOE 团队模型）
+## 四、Agent 体系（MOE 方法模型）
+
+> 本仓库保存可复用的方法文档，不定义独立的 primary/coordinator runtime。根会话由当前运行时的全局 `AGENTS.md`、项目 `AGENTS.md` 与 Skills 承载范围、验证和回执；下列专职角色仅在根会话明确委派时执行任务。
 
 | Agent | 类型 | 职责 |
 |-------|------|------|
-| **coordinator** | primary | 门控调度、决策签发、日志记录 |
-| **architect** | primary | 架构设计、LLD 编写 |
-| **pm** | subagent | PRD 编写、原子需求提取 |
+| **根会话** | runtime context | 用户沟通、跨任务决策、范围/验证/最终集成 |
+| **architect** | 专职 agent | 架构设计、LLD 编写 |
+| **pm** | 专职 agent | PRD 编写、原子需求提取 |
 | **docs** | subagent | 技术文档编写、溯源区维护 |
 | **backend** | subagent | 后端编码 |
 | **frontend** | subagent | 前端编码 |
@@ -89,7 +91,7 @@
 | **devops** | subagent | 部署运维 |
 | **residual-auditor** | subagent | 残差保真度审计 |
 
-详见：[agents/](agents/)
+详见：[`docs/04_agent/sop/`](docs/04_agent/sop/)（角色方法文档）与 [`skills/`](skills/)（检查清单）。
 
 ---
 
@@ -112,7 +114,7 @@ docs-spec/
 ├── AGENTS.md                    # 全局行为准则（含残差保真）
 ├── README.md                    # 本文件
 │
-├── agents/                      # Agent 角色定义（10 个）
+├── docs/04_agent/sop/           # Agent 角色 SOP/方法文档（runtime-neutral）
 ├── skills/                      # 质量检查技能（14 个）
 │
 ├── 01_strategies/               # 策略层详解（5 个）
